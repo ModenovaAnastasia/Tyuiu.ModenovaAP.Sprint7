@@ -117,4 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="labelInfo_MAP.Text" xml:space="preserve">
+    <value>Разработчик: Моденова А. П.
+группа ИИПб-23-3
+
+Программа разработана в рамках изучения языка C#
+
+Тюменский индустриальный университет (с) 2023
+Высшая школа цифровых технологий (с) 2023
+
+Внутреннее имя: Tyuiu.ModenovaAP.Sprint7.Project.V6
+
+</value>
+  </data>
 </root>

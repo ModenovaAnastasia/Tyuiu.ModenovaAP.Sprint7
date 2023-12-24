@@ -24,12 +24,13 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         }
         // Задаём глобальные переменные, которые можно использовать во всех функциях
         static int rows = 0;
-        static int columns = 5;
+        static int columns = 10;
         static string FilePath = ""; // Путь к файлу
         static string[,] arrayValues = new string[rows, columns]; // Массив для таблицы
         static bool buttonTrue = false; // Нужно для отключении кнопки, если было выделенно несколько строк
         static int addID = 0; // Переменная, которая будет возрастать с каждой созданной строкой
         static bool isSaved = true; // Были ли сделаны какие-либо действия, требующие сохранения
+        static string[] filters = new string[8];
         DataService ds = new DataService();
 
 
@@ -48,7 +49,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
                 if (dialogResult == DialogResult.Yes)
                 {
                     rows = 0;
-                    columns = 5;
+                    columns = 10;
                     FilePath = "";
                     arrayValues = new string[rows, columns];
                     addID = 0;
@@ -57,12 +58,21 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
                     buttonDeletePatient_MAP.Enabled = false;
                     buttonTrue = false;
                     isSaved = true;
+                    textBoxPatientSPN_MAP.Text = string.Empty;
+                    textBoxDoctorSPN_MAP.Text = string.Empty;
+                    textBoxDiagnosis_MAP.Text = string.Empty;
+                    numericUpDownID_MAP.Value = 0;
+                    numericUpDownDisabilityTime_MAP.Value = 0;
+                    comboBoxAmbulatory_MAP.Text = string.Empty;
+                    comboBoxDispanser_MAP.Text = string.Empty;
+                    filters = new string[8];
+
                 }
             }
             else
             {
                 rows = 0;
-                columns = 5;
+                columns = 10;
                 FilePath = "";
                 arrayValues = new string[rows, columns];
                 addID = 0;
@@ -71,84 +81,127 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
                 buttonDeletePatient_MAP.Enabled = false;
                 buttonTrue = false;
                 isSaved = true;
+                textBoxPatientSPN_MAP.Text = string.Empty;
+                textBoxDoctorSPN_MAP.Text = string.Empty;
+                textBoxDiagnosis_MAP.Text = string.Empty;
+                numericUpDownID_MAP.Value = 0;
+                numericUpDownDisabilityTime_MAP.Value = 0;
+                comboBoxAmbulatory_MAP.Text = string.Empty;
+                comboBoxDispanser_MAP.Text = string.Empty;
+                filters = new string[8];
+
             }
         }
 
         // Загрузка таблицы из текстового файла .csv
         public static string[,] LoadFromFileData(string filePath)
         {
-            string fileData = File.ReadAllText(filePath, Encoding.GetEncoding(1251)); // Открывается файл по заданному пути, с кодировкой Windows-1251 (для корректного отображения русских символов)
-            fileData = fileData.Replace("\n", "\r"); // Заменям управляющий символ новой строки на символ возврата каретки
-            string[] lines = fileData.Split(new char[] { '\r' }, StringSplitOptions.RemoveEmptyEntries); // И теперь разделяем на строки 
             try
             {
-                rows = lines.Length; // Число строк
-                columns = lines[0].Split(';').Length; // Число столбцов (разделяем по ;)
-
-                arrayValues = new string[rows, columns];  // Пересоздаём массив с новыми значениями строк и столбцов
-
-                for (int r = 0; r < rows; r++)  // Заполняем массив
+                string fileData = File.ReadAllText(filePath, Encoding.GetEncoding(1251));
+                fileData = fileData.Replace("\n", "\r");
+                string[] lines = fileData.Split(new char[] { '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                try
                 {
-                    string[] line_r = lines[r].Split(';');
-                    for (int c = 0; c < columns; c++)
+                    rows = lines.Length;
+                    arrayValues = new string[rows, columns];
+                    for (int r = 0; r < rows; r++)
                     {
-                        arrayValues[r, c] = line_r[c];
+                        string[] line_r = lines[r].Split(';');
+                        for (int c = 0; c < columns; c++)
+                        {
+                            arrayValues[r, c] = line_r[c];
+                        }
                     }
                 }
+                catch
+                {
+                    rows = 0;
+                    columns = 10;
+                    arrayValues = new string[rows, columns];
+                }
             }
-            catch // Если на каком-либо этапе загрузки произошла ошибка, то сбрасываем значения переменных к изначальным
-            {
-                rows = 0;
-                columns = 5;
-                arrayValues = new string[rows, columns];
-            }
-
+            catch { }
 
             return arrayValues;
         }
 
         // Функция сохранения таблицы в файл. К ней обращаются кнопки "Сохранить" и "Сохранить как..."
-        private void Save() 
+        private void Save()
         {
 
             FileInfo fileInfo = new FileInfo(FilePath);
             bool fileExists = fileInfo.Exists;
 
-            if (fileExists) // Проверяем, существует ли уже этот файл. Если да, то удаляем.
+            if (fileExists)
             {
                 File.Delete(FilePath);
             }
             string str = "";
-            dataGridViewPatients_MAP.Sort(dataGridViewPatients_MAP.Columns[0], ListSortDirection.Ascending); // Сбрасываем сортировку (возвращяем её к сортировке по возрастанию номеров)
+            dataGridViewPatients_MAP.Sort(dataGridViewPatients_MAP.Columns[0], ListSortDirection.Ascending);
             for (int i = 0; i < rows; i++)
             {
-                for (int j = 0; j < columns; j++) 
+                for (int j = 0; j < columns; j++)
                 {
                     if (j != columns - 1)
                     {
-                        str = str + dataGridViewPatients_MAP.Rows[i].Cells[j].Value + ";"; // В переменную записываем значения из ячейки, добавляя ;
+                        str = str + dataGridViewPatients_MAP.Rows[i].Cells[j].Value + ";";
                     }
                     else
                     {
-                        str += dataGridViewPatients_MAP.Rows[i].Cells[j].Value; // Если это последний элемент, то ; не добавляем
+                        str += dataGridViewPatients_MAP.Rows[i].Cells[j].Value;
                     }
                 }
-                File.AppendAllText(FilePath, str + Environment.NewLine, Encoding.GetEncoding(1251)); // Добавляем переменную в файл и переносим на новую строку
+                File.AppendAllText(FilePath, str + Environment.NewLine, Encoding.GetEncoding(1251));
                 str = "";
             }
-            isSaved = true; // Меняем переменную "Сохранения" на истину
+            isSaved = true;
+            Filter();
         }
+
+        private void Filter()
+        {
+            dataGridViewPatients_MAP.Rows.Clear();
+            for (int i = 0; i < rows; i++)
+            {
+                if ((arrayValues[i, 0] == filters[0] || string.IsNullOrWhiteSpace(filters[0]) || filters[0] == "0") && (arrayValues[i, 2] == filters[2] || string.IsNullOrWhiteSpace(filters[2])) && (arrayValues[i, 6] == filters[5] || string.IsNullOrWhiteSpace(filters[5])) && (arrayValues[i, 7] == filters[6] || string.IsNullOrWhiteSpace(filters[6]) || filters[6] == "0") && (arrayValues[i, 8] == filters[7] || string.IsNullOrWhiteSpace(filters[7])))
+                {
+                    try
+                    {
+                        if ((arrayValues[i, 1].Contains(filters[1]) || string.IsNullOrWhiteSpace(filters[1])) && (arrayValues[i, 3].Contains(filters[3]) || string.IsNullOrWhiteSpace(filters[3])) && (arrayValues[i, 5].Contains(filters[4]) || string.IsNullOrWhiteSpace(filters[4])))
+                        {
+                            dataGridViewPatients_MAP.Rows.Add(arrayValues[i, 0]);
+                            for (int k = 1; k < columns; k++)
+                            {
+                                dataGridViewPatients_MAP.Rows[dataGridViewPatients_MAP.RowCount - 1].Cells[k].Value = arrayValues[i, k];
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        dataGridViewPatients_MAP.Rows.Add(arrayValues[i, 0]);
+                        for (int k = 1; k < columns; k++)
+                        {
+                            dataGridViewPatients_MAP.Rows[dataGridViewPatients_MAP.RowCount - 1].Cells[k].Value = arrayValues[i, k];
+                        }
+                    }
+
+                }
+            }
+        }
+
         // По нажатию кнопки сохранить, начинается проверка, сохраняли или открывали ли мы файл таблицы. Если да - то по уже заданному пути всё сохраняется
         // Если нет - вызывается диалоговое окно с выбором места сохранения
         private void ToolStripMenuItemSave_MAP_Click(object sender, EventArgs e)
         {
+            UpdateTable();
             if (FilePath != "")
             {
                 Save();
             }
             else
             {
-                saveFileDialogExcel_MAP.FileName = "Пациенты.csv"; // Предложение названия файла
+                saveFileDialogExcel_MAP.FileName = "Пациенты.csv";
                 saveFileDialogExcel_MAP.InitialDirectory = Directory.GetCurrentDirectory();
                 saveFileDialogExcel_MAP.ShowDialog();
 
@@ -159,18 +212,21 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         // Вызывается диалоговое окно с выбором места сохранения
         private void ToolStripMenuItemSaveAs_MAP_Click(object sender, EventArgs e)
         {
+            UpdateTable();
             saveFileDialogExcel_MAP.FileName = "Пациенты.csv";
             saveFileDialogExcel_MAP.InitialDirectory = Directory.GetCurrentDirectory();
-            saveFileDialogExcel_MAP.ShowDialog();
-
-            FilePath = saveFileDialogExcel_MAP.FileName;
-            Save();
+            if (!(saveFileDialogExcel_MAP.ShowDialog() == DialogResult.Cancel))
+            {
+                FilePath = saveFileDialogExcel_MAP.FileName;
+                Save();
+            }
         }
 
-        // Вызывается диалоговое окно с выбором места сохранения
+        // Вызывается диалоговое окно с открытием файла
         private void ToolStripMenuItemOpen_MAP_Click(object sender, EventArgs e)
         {
-            openFileDialogExcel_MAP.ShowDialog(); 
+
+            openFileDialogExcel_MAP.ShowDialog();
             FilePath = openFileDialogExcel_MAP.FileName;
 
             arrayValues = LoadFromFileData(FilePath);
@@ -185,9 +241,13 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
                     dataGridViewPatients_MAP.Rows[r].Cells[c].Value = arrayValues[r, c];
                 }
             }
-            buttonGoToPatient_MAP.Enabled = true;
-            buttonDeletePatient_MAP.Enabled = true;
-            buttonTrue = true;
+            if (rows > 0)
+            {
+                buttonGoToPatient_MAP.Enabled = true;
+                buttonDeletePatient_MAP.Enabled = true;
+                buttonTrue = true;
+            }
+
         }
 
         //Функция обновления таблицы, приводящая её к значениям массива
@@ -214,10 +274,19 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         //Открывается новое окно с мед. картой пациента
         private void buttonGoToPAtient_MAP_Click(object sender, EventArgs e)
         {
-            string str = dataGridViewPatients_MAP.SelectedCells.ToString();
-            FormPatientCard_MAP formPatientCard_MAP = new FormPatientCard_MAP();
-            formPatientCard_MAP.Text += str;
-            formPatientCard_MAP.Show();
+            FormPatientCard_MAP formPatienCard = new FormPatientCard_MAP();
+            foreach (DataGridViewRow item in this.dataGridViewPatients_MAP.SelectedRows)
+            {
+                try
+                {
+                    formPatienCard.Text = Convert.ToString(dataGridViewPatients_MAP.Rows[item.Index].Cells[1].Value) + " - ";
+                    formPatienCard.Text += "Медицинская Карта";
+                    formPatienCard.patientName = Convert.ToString(dataGridViewPatients_MAP.Rows[item.Index].Cells[1].Value);
+                }
+                catch { }
+            }
+            formPatienCard.array = arrayValues;
+            formPatienCard.Show();
         }
 
         private void FormMainPatients_MAP_Resize(object sender, EventArgs e)
@@ -227,7 +296,8 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
 
         private void dateTimePickerBirthday_MAP_ValueChanged(object sender, EventArgs e)
         {
-
+            filters[2] = dateTimePickerBirthday_MAP.Value.ToShortDateString().Replace("/", ".");
+            Filter();
         }
 
         private void FormMainPatients_MAP_Load(object sender, EventArgs e)
@@ -237,25 +307,14 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
 
         private void textBoxSurname_MAP_TextChanged(object sender, EventArgs e)
         {
-
+            filters[1] = Convert.ToString(textBoxPatientSPN_MAP.Text);
+            Filter();
         }
         //Фильтрация по Номеру пациента
         private void numericUpDownID_MAP_ValueChanged(object sender, EventArgs e)
         {
-            dataGridViewPatients_MAP.Rows.Clear(); //Очищается таблица
-            for (int i = 0; i < rows; i++)
-            {
-                if (arrayValues[i, 0] == Convert.ToString(numericUpDownID_MAP.Value)) //Если значение номера в массиве совпадает с таковым в numericUpDown
-                {
-                    dataGridViewPatients_MAP.Rows.Add(arrayValues[i, 0]); // То добавляется новая строка с этим номером
-                    for (int j = 1; j < columns; j++)
-                    {
-                        dataGridViewPatients_MAP.Rows[dataGridViewPatients_MAP.RowCount - 1].Cells[j].Value = arrayValues[i, j]; // в неё добавляются остальные элементы этой строки из других стобцов
-                    }
-
-                }
-
-            }
+            filters[0] = Convert.ToString(numericUpDownID_MAP.Value);
+            Filter();
         }
         // Открывается форма с руководством пользователя
         private void ToolStripMenuItemUserGuide_MAP_Click(object sender, EventArgs e)
@@ -273,52 +332,78 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         // Фукнция добавления новой строки в таблице. Номер автоматически повышается на максимальное значение + 1
         private void buttonAddPatient_MAP_Click(object sender, EventArgs e)
         {
-            dataGridViewPatients_MAP.Rows.Add(); // Добавляет строку
-            // Включает некоторые кнопки
+            dataGridViewPatients_MAP.Rows.Add();
             buttonGoToPatient_MAP.Enabled = true;
             buttonDeletePatient_MAP.Enabled = true;
-            buttonTrue = true; 
+            buttonTrue = true;
             isSaved = false;
-            rows++; // Увеличивает кол-во строк
+            rows++;
 
             for (int i = 1; i < columns; i++)
             {
-                dataGridViewPatients_MAP.Rows[rows - 1].Cells[i].Value = ""; // Созданную строку заполняет пустыми значениями
+                dataGridViewPatients_MAP.Rows[dataGridViewPatients_MAP.Rows.Count - 1].Cells[i].Value = "";
             }
 
             for (int i = 0; i < rows - 1; i++)
             {
-                addID = Math.Max(Convert.ToInt32(dataGridViewPatients_MAP.Rows[i].Cells[0].Value), addID); // Находит максимальный номер в таблице
+                addID = Math.Max(Convert.ToInt32(arrayValues[i, 0]), addID);
             }
-            addID++; 
-            dataGridViewPatients_MAP.Rows[rows - 1].Cells[0].Value = Convert.ToString(addID); // Заменяет ячейку первого столбца на макс номер + 1
-            // Пересоздаёт массив и заполняет его предыдущими значениями с учётом новой строки
+            addID++;
+            dataGridViewPatients_MAP.Rows[dataGridViewPatients_MAP.Rows.Count - 1].Cells[0].Value = Convert.ToString(addID);
+            string[,] tempValues = arrayValues;
             arrayValues = new string[rows, columns];
-            for (int r = 0; r < rows; r++)
+            for (int r = 0; r < rows - 1; r++)
             {
                 for (int c = 0; c < columns; c++)
                 {
-                    arrayValues[r, c] = Convert.ToString(dataGridViewPatients_MAP.Rows[r].Cells[c].Value); 
-
+                    arrayValues[r, c] = tempValues[r, c];
                 }
             }
+            for (int с = 0; с < columns; с++)
+                arrayValues[rows - 1, с] = Convert.ToString(dataGridViewPatients_MAP.Rows[dataGridViewPatients_MAP.Rows.Count - 1].Cells[с].Value);
         }
 
         // Функция удаления строки
         private void buttonDeletePatient_MAP_Click(object sender, EventArgs e)
         {
-            // Спрашивает пользователя в диалоговом окне, подтверждает ли он удаление
             DialogResult dialogResult = MessageBox.Show("Вы уверенны, что хотите удалить выбранные элементы?", "Удаление", MessageBoxButtons.YesNo, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2);
-            // Если да, то...
+            isSaved = false;
             if (dialogResult == DialogResult.Yes)
             {
-                isSaved = false;
-                foreach (DataGridViewRow item in this.dataGridViewPatients_MAP.SelectedRows) 
+                string[] tempArray = new string[dataGridViewPatients_MAP.SelectedRows.Count];
+                int cnt = 0;
+                foreach (DataGridViewRow item in this.dataGridViewPatients_MAP.SelectedRows)
                 {
-                    dataGridViewPatients_MAP.Rows.RemoveAt(item.Index); // Каждую выделенную строку он удаляет из таблицы, уменьшает переменную 
-                    rows--;
+                    tempArray[cnt] = Convert.ToString(dataGridViewPatients_MAP.Rows[item.Index].Cells[0].Value);
+                    dataGridViewPatients_MAP.Rows.RemoveAt(item.Index);
+                    cnt++;
                 }
-                // Пересоздаёт массив и заполняет его предыдущими значениями с учётом удалённых строк
+
+                UpdateTable();
+
+                for (int i = rows - 1; i >= 0; i--)
+                {
+                    for (int j = 0; j < tempArray.GetLength(0); j++)
+                    {
+                        try
+                        {
+                            if (Convert.ToString(dataGridViewPatients_MAP.Rows[i].Cells[0].Value) == tempArray[j])
+                            {
+                                dataGridViewPatients_MAP.Rows.RemoveAt(i);
+                                rows--;
+                            }
+                        }
+                        catch
+                        {
+                            if (Convert.ToString(dataGridViewPatients_MAP.Rows[dataGridViewPatients_MAP.Rows.Count - 1].Cells[0].Value) == tempArray[j])
+                            {
+                                dataGridViewPatients_MAP.Rows.RemoveAt(dataGridViewPatients_MAP.Rows.Count - 1);
+                                rows--;
+                            }
+                        }
+                    }
+
+                }
                 arrayValues = new string[rows, columns];
                 for (int r = 0; r < rows; r++)
                 {
@@ -329,6 +414,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
                     }
                 }
                 addID = 0;
+                Filter();
             }
         }
         // Проверяет кол-во выделенных элементов. Если их больше 1, то отключает кнопку перехода к Мед. карте пациента
@@ -346,28 +432,118 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         // За счёт этой функции, в таблице номер сортируется как число, а не как строка
         private void dataGridViewPatients_MAP_SortCompare(object sender, DataGridViewSortCompareEventArgs e)
         {
-            if (e.Column.Index == 0)
+            if (e.Column.Index == 0 || e.Column.Index == 7)
             {
-                e.SortResult = int.Parse(e.CellValue1.ToString()).CompareTo(int.Parse(e.CellValue2.ToString()));
-                e.Handled = true;
+                try
+                {
+                    e.SortResult = int.Parse(e.CellValue1.ToString()).CompareTo(int.Parse(e.CellValue2.ToString()));
+                    e.Handled = true;
+                }
+                catch { }
+            }
+            if (e.Column.Index == 2)
+            {
+                try
+                {
+                    e.SortResult = DateTime.Parse(e.CellValue1.ToString()).CompareTo(DateTime.Parse(e.CellValue2.ToString()));
+                    e.Handled = true;
+                }
+                catch { }
             }
         }
         // Записываются изменения ячейки таблицы в массив
         private void dataGridViewPatients_MAP_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             isSaved = false;
-            for (int r = 0; r < rows; r++)
-            {
-                for (int c = 0; c < columns; c++)
+            for (int i = 0; i < rows; i++)
+                for (int j = 0; j < dataGridViewPatients_MAP.Rows.Count; j++)
                 {
-                    arrayValues[r, c] = Convert.ToString(dataGridViewPatients_MAP.Rows[r].Cells[c].Value);
+                    if (Convert.ToString(dataGridViewPatients_MAP.Rows[j].Cells[0].Value) == arrayValues[i, 0])
+                    {
+                        for (int k = 1; k < columns; k++)
+                        {
+                            arrayValues[i, k] = Convert.ToString(dataGridViewPatients_MAP.Rows[j].Cells[k].Value);
+                        }
+                    }
+
                 }
-            }
         }
         // Сброс фильтров и сортировки
         private void buttonReset_MAP_Click(object sender, EventArgs e)
         {
+            numericUpDownID_MAP.Value = 0;
+            textBoxPatientSPN_MAP.Text = string.Empty;
+            textBoxDoctorSPN_MAP.Text = string.Empty;
+            textBoxDiagnosis_MAP.Text = string.Empty;
+            comboBoxAmbulatory_MAP.Text = string.Empty;
+            numericUpDownDisabilityTime_MAP.Value = 0;
+            comboBoxDispanser_MAP.Text = string.Empty;
             UpdateTable();
+        }
+
+        private void textBoxSearch_MAP_TextChanged(object sender, EventArgs e)
+        {
+            dataGridViewPatients_MAP.Rows.Clear();
+            string text = textBoxSearch_MAP.Text;
+            if (text != "")
+            {
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < columns; j++)
+                    {
+                        if (arrayValues[i, j].Contains(text))
+                        {
+                            foreach (DataGridViewRow row in dataGridViewPatients_MAP.Rows)
+                            {
+                                if (row.Cells[0].Value.ToString().Contains(arrayValues[i, 0]))
+                                {
+                                    dataGridViewPatients_MAP.Rows.Remove(row);
+                                }
+                            }
+                            dataGridViewPatients_MAP.Rows.Add(arrayValues[i, 0]);
+                            for (int k = 1; k < columns; k++)
+                            {
+                                dataGridViewPatients_MAP.Rows[dataGridViewPatients_MAP.RowCount - 1].Cells[k].Value = arrayValues[i, k];
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                UpdateTable();
+            }
+        }
+
+        private void textBoxName_MAP_TextChanged(object sender, EventArgs e)
+        {
+            filters[3] = Convert.ToString(textBoxDoctorSPN_MAP.Text);
+            Filter();
+        }
+
+        private void textBoxPatronymic_MAP_TextChanged(object sender, EventArgs e)
+        {
+            filters[4] = Convert.ToString(textBoxDiagnosis_MAP.Text);
+            Filter();
+
+        }
+
+        private void comboBoxAmbulatory_MAP_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filters[5] = Convert.ToString(comboBoxAmbulatory_MAP.Text);
+            Filter();
+        }
+
+        private void numericUpDownDisabilityTime_MAP_ValueChanged(object sender, EventArgs e)
+        {
+            filters[6] = Convert.ToString(numericUpDownDisabilityTime_MAP.Value);
+            Filter();
+        }
+
+        private void comboBoxDispanser_MAP_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            filters[7] = Convert.ToString(comboBoxDispanser_MAP.Text);
+            Filter();
         }
     }
 }

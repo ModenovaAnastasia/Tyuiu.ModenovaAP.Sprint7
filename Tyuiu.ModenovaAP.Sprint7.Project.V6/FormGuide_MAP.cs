@@ -16,5 +16,39 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         {
             InitializeComponent();
         }
+        static int curentImage = 0;
+        private void ChangeImage()
+        {
+            if (curentImage == 0)
+            {
+                pictureBoxManual_MAP.BackgroundImage = Properties.Resources._1;
+            }
+            if (curentImage == 1)
+            {
+                pictureBoxManual_MAP.BackgroundImage = Properties.Resources._2;
+            }
+
+        }
+        private void buttonNext_MAP_Click(object sender, EventArgs e)
+        {
+            curentImage++;
+            buttonPrev_MAP.Enabled = true;
+            if (curentImage == 1)
+            {
+                buttonNext_MAP.Enabled = false;
+            }
+            ChangeImage();
+        }
+
+        private void buttonPrev_MAP_Click(object sender, EventArgs e)
+        {
+            curentImage--;
+            buttonNext_MAP.Enabled = true;
+            if (curentImage == 0)
+            {
+                buttonPrev_MAP.Enabled = false;
+            }
+            ChangeImage();
+        }
     }
 }
