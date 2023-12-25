@@ -17,7 +17,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
             InitializeComponent();
         }
         static int curentImage = 0;
-        private void ChangeImage()
+        private void ChangeImage() //в зависимости от значения переменной устанавливается изображение из ресурсов
         {
             if (curentImage == 0)
             {
@@ -29,7 +29,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
             }
 
         }
-        private void buttonNext_MAP_Click(object sender, EventArgs e)
+        private void buttonNext_MAP_Click(object sender, EventArgs e) //листать изображения
         {
             curentImage++;
             buttonPrev_MAP.Enabled = true;

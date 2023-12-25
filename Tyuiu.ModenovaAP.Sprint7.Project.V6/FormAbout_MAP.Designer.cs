@@ -46,6 +46,7 @@
             this.buttonOK_MAP.TabIndex = 11;
             this.buttonOK_MAP.Text = "Ок";
             this.buttonOK_MAP.UseVisualStyleBackColor = false;
+            this.buttonOK_MAP.Click += new System.EventHandler(this.buttonOK_MAP_Click);
             // 
             // pictureBoxAvatar_MAP
             // 

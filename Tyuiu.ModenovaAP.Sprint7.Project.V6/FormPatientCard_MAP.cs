@@ -20,6 +20,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         public string[,] array;
         public string patientName;
         DataService ds = new DataService();
+        //загружает данные пациента в форму, включая график, и отбражает значения
         private void FormPatientCard_MAP_Load(object sender, EventArgs e)
         {
             int cnt = 0;

@@ -8,6 +8,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6.Lib
 {
     public class DataService
     {
+        //считает сколько раз встречается указанное имя
         public int TimesPatient(string[,] array, string name)
         {
             int cnt = 0;
@@ -24,10 +25,10 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6.Lib
             }
             return cnt;
         }
-
+        //ищет мин время 
         public int MinTime(string[,] array, string name)
         {
-            int min = 999999999;
+            int min = 999999999; //юольше время -> пербор, если мин осталось таким же, то заменятся на 0
             for (int i = 0; i < array.GetLength(0); i++)
             {
                 try
@@ -71,7 +72,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6.Lib
             }
             return max;
         }
-
+        //макс знач времени 
         public int AvgTime(string[,] array, string name)
         {
             int avg = 0;

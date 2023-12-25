@@ -16,5 +16,10 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         {
             InitializeComponent();
         }
+
+        private void buttonOK_MAP_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
