@@ -31,6 +31,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         static int addID = 0; // Переменная, которая будет возрастать с каждой созданной строкой
         static bool isSaved = true; // Были ли сделаны какие-либо действия, требующие сохранения
         static string[] filters = new string[8]; //массив строк длиной 8
+        static DateTime data = DateTime.Now;
         DataService ds = new DataService();
 
 
@@ -164,7 +165,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
             dataGridViewPatients_MAP.Rows.Clear(); //очищает все стр в табл перед применением фильтра
             for (int i = 0; i < rows; i++)
             {
-                if ((arrayValues[i, 0] == filters[0] || string.IsNullOrWhiteSpace(filters[0]) || filters[0] == "0") && (arrayValues[i, 2] == filters[2] || string.IsNullOrWhiteSpace(filters[2])) && (arrayValues[i, 6] == filters[5] || string.IsNullOrWhiteSpace(filters[5])) && (arrayValues[i, 7] == filters[6] || string.IsNullOrWhiteSpace(filters[6]) || filters[6] == "0") && (arrayValues[i, 8] == filters[7] || string.IsNullOrWhiteSpace(filters[7])))
+                if ((arrayValues[i, 0] == filters[0] || string.IsNullOrWhiteSpace(filters[0]) || filters[0] == "0") && (arrayValues[i, 2] == filters[2] || string.IsNullOrWhiteSpace(filters[2]) || dateTimePickerBirthday_MAP.Value == date) && (arrayValues[i, 6] == filters[5] || string.IsNullOrWhiteSpace(filters[5])) && (arrayValues[i, 7] == filters[6] || string.IsNullOrWhiteSpace(filters[6]) || filters[6] == "0") && (arrayValues[i, 8] == filters[7] || string.IsNullOrWhiteSpace(filters[7])))
                 {
                     try
                     {
