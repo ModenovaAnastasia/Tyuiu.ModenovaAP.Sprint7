@@ -31,7 +31,7 @@ namespace Tyuiu.ModenovaAP.Sprint7.Project.V6
         static int addID = 0; // Переменная, которая будет возрастать с каждой созданной строкой
         static bool isSaved = true; // Были ли сделаны какие-либо действия, требующие сохранения
         static string[] filters = new string[8]; //массив строк длиной 8
-        static DateTime data = DateTime.Now;
+        static DateTime date = DateTime.Now;
         DataService ds = new DataService();
 
 
